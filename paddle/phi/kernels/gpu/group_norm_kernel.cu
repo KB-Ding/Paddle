@@ -21,7 +21,6 @@
 #include "paddle/phi/kernels/gpu/group_norm_utils.h"
 
 #include "paddle/phi/common/data_type.h"
-#include "paddle/phi/common/float16.h"
 #include "paddle/phi/core/device_context.h"
 #include "paddle/phi/kernels/full_kernel.h"
 namespace phi {
@@ -1250,6 +1249,7 @@ void GroupNormKernel(const Context& dev_ctx,
   if (is_same<T, phi::float16>::value && data_layout_str == "NHWC") {
     const paddle::optional<DenseTensor>& residual =
         paddle::optional<DenseTensor>(paddle::none);
+    phi::DenseTensor empty_tensor;
     GroupNormNDHWCKernel<phi::float16, Context>(dev_ctx,
                                                 x,
                                                 residual,
@@ -1260,7 +1260,7 @@ void GroupNormKernel(const Context& dev_ctx,
                                                 data_layout_str,
                                                 "",
                                                 y,
-                                                new DenseTensor(),
+                                                &empty_tensor,
                                                 mean,
                                                 var);
     return;
@@ -1270,6 +1270,7 @@ void GroupNormKernel(const Context& dev_ctx,
   if (is_same<T, phi::bfloat16>::value && data_layout_str == "NHWC") {
     const paddle::optional<DenseTensor>& residual =
         paddle::optional<DenseTensor>(paddle::none);
+    phi::DenseTensor empty_tensor;
     GroupNormNDHWCKernel<phi::bfloat16, Context>(dev_ctx,
                                                  x,
                                                  residual,
@@ -1280,7 +1281,7 @@ void GroupNormKernel(const Context& dev_ctx,
                                                  data_layout_str,
                                                  "",
                                                  y,
-                                                 new DenseTensor(),
+                                                 &empty_tensor,
                                                  mean,
                                                  var);
     return;

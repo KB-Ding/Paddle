@@ -15,7 +15,6 @@
 #include "paddle/phi/kernels/index_elementwise_get_kernel.h"
 
 #include "paddle/phi/backends/gpu/gpu_context.h"
-#include "paddle/phi/common/bfloat16.h"
 #include "paddle/phi/core/kernel_registry.h"
 #include "paddle/phi/kernels/funcs/index_elementwise.cu.h"
 #include "paddle/phi/kernels/funcs/stride_utils.h"
@@ -24,7 +23,7 @@ namespace phi {
 template <typename T, typename IndexT = int>
 void GPUIndexElementwiseGetKernel(const phi::GPUContext& dev_ctx,
                                   const DenseTensor& input,
-                                  const std::vector<const DenseTensor*> index,
+                                  const std::vector<const DenseTensor*>& index,
                                   const std::vector<int64_t>& input_dims,
                                   const std::vector<int64_t>& input_strides,
                                   const std::vector<int64_t>& index_dims,

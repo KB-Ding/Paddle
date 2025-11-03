@@ -16,6 +16,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from paddle._C_ops import (  # noqa: F401
+    abs,
+    ceil,
     cos,
     floor,
     rsqrt,
@@ -29,7 +31,6 @@ from .. import _C_ops
 from ..base.data_feeder import check_variable_and_dtype
 from ..framework import LayerHelper, in_dynamic_or_pir_mode
 from .layer_function_generator import (
-    generate_activation_fn,
     generate_inplace_fn,
     generate_layer_fn,
 )
@@ -74,35 +75,6 @@ for _OP in set(__inplace_unary_func__):
     func.__module__ = __name__
     _func = inplace_apis_in_dygraph_only(func)
     globals()[_OP] = _func
-
-
-def abs(x: Tensor, name: str | None = None) -> Tensor:
-    """
-    Perform elementwise abs for input `x`.
-
-    .. math::
-
-        out = |x|
-
-    Args:
-        x (Tensor): The input Tensor with data type int32, int64, float16, float32, float64, complex64 and complex128.
-        name (str|None, optional): Name for the operation (optional, default is None). For more information, please refer to :ref:`api_guide_Name`.
-
-    Returns:
-        Tensor.A Tensor with the same data type and shape as :math:`x`.
-
-    Examples:
-        .. code-block:: python
-
-            >>> import paddle
-
-            >>> x = paddle.to_tensor([-0.4, -0.2, 0.1, 0.3])
-            >>> out = paddle.abs(x)
-            >>> print(out)
-            Tensor(shape=[4], dtype=float32, place=Place(cpu), stop_gradient=True,
-            [0.40000001, 0.20000000, 0.10000000, 0.30000001])
-    """
-    return generate_activation_fn('abs')(x, name)
 
 
 def acos(x: Tensor, name: str | None = None) -> Tensor:
@@ -426,59 +398,6 @@ def atanh(x: Tensor, name: str | None = None) -> Tensor:
         helper = LayerHelper('atanh', **locals())
         out = helper.create_variable_for_type_inference(dtype=x.dtype)
         helper.append_op(type='atanh', inputs={"X": x}, outputs={"Out": out})
-        return out
-
-
-def ceil(x: Tensor, name: str | None = None) -> Tensor:
-    """
-
-    Ceil Operator. Computes ceil of x element-wise.
-
-    .. math::
-        out = \\left \\lceil x \\right \\rceil
-
-    Args:
-        x (Tensor): Input of Ceil operator, an N-D Tensor, with data type float32, float64, float16, bfloat16,
-            uint8, int8, int16, int32, int64.
-        name (str|None, optional): Name for the operation (optional, default is None). For more information, please refer to :ref:`api_guide_Name`.
-
-    Returns:
-        Tensor. Output of Ceil operator, a Tensor with shape same as input
-            (integer types are autocasted into float32).
-
-    Examples:
-        .. code-block:: python
-
-            >>> import paddle
-
-            >>> x = paddle.to_tensor([-0.4, -0.2, 0.1, 0.3])
-            >>> out = paddle.ceil(x)
-            >>> print(out)
-            Tensor(shape=[4], dtype=float32, place=Place(cpu), stop_gradient=True,
-            [-0., -0., 1. , 1. ])
-    """
-    if in_dynamic_or_pir_mode():
-        return _C_ops.ceil(x)
-    else:
-        check_variable_and_dtype(
-            x,
-            'x',
-            [
-                'float16',
-                'uint16',
-                'float32',
-                'float64',
-                'uint8',
-                'int8',
-                'int16',
-                'int32',
-                'int64',
-            ],
-            'ceil',
-        )
-        helper = LayerHelper('ceil', **locals())
-        out = helper.create_variable_for_type_inference(dtype=x.dtype)
-        helper.append_op(type='ceil', inputs={"X": x}, outputs={"Out": out})
         return out
 
 
